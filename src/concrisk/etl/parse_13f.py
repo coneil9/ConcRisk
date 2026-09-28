@@ -1,5 +1,5 @@
 import logging
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
@@ -129,17 +129,29 @@ def parse_cover(xml_path: Path) -> CoverInfo:
     )
 
 
-def parse_information_table(xml_path: Path, filed_at: date) -> Iterator[ParsedPosition]:
+def parse_information_table(
+    xml_path: Path,
+    filed_at: date,
+    on_error: Callable[[ParseError], None] | None = None,
+) -> Iterator[ParsedPosition]:
     """Parse a 13F info-table XML into positions. Value is normalized to
     whole dollars using the filing's `filed_at` date and the 2023-01-03
-    unit-scaling rule."""
+    unit-scaling rule.
+
+    If `on_error` is provided, per-row ParseErrors are passed to it and
+    the row is skipped; otherwise the error is raised (test-friendly)."""
     multiplier = Decimal(1000) if filed_at < VALUE_UNIT_DOLLARIZATION_CUTOFF else Decimal(1)
 
     root = ET.parse(xml_path).getroot()
     for info_table in root.iter():
         if _localname(info_table.tag) != "infoTable":
             continue
-        yield _parse_info_table_row(info_table, multiplier)
+        try:
+            yield _parse_info_table_row(info_table, multiplier)
+        except ParseError as e:
+            if on_error is None:
+                raise
+            on_error(e)
 
 
 def _parse_info_table_row(el: ET.Element, multiplier: Decimal) -> ParsedPosition:
