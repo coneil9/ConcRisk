@@ -155,11 +155,12 @@ class SecClient:
         return FilingArtifacts(cover_path=cover_local, info_table_path=info_local)
 
     def _get(self, url: str) -> httpx.Response:
+        headers = {"User-Agent": self._user_agent}
         last_error: Exception | None = None
         for attempt in range(DEFAULT_RETRIES):
             self._bucket.acquire()
             try:
-                resp = self._client.get(url)
+                resp = self._client.get(url, headers=headers)
             except httpx.TransportError as e:
                 last_error = e
                 sleep_for = 2**attempt

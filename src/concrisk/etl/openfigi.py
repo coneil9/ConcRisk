@@ -40,10 +40,9 @@ class OpenFigiClient:
         settings = get_settings()
         self._api_key = settings.openfigi_api_key or None
         self._batch_size, self._max_rps = _LIMITS_WITH_KEY if self._api_key else _LIMITS_NO_KEY
-        headers = {"Content-Type": "application/json"}
-        if self._api_key:
-            headers["X-OPENFIGI-APIKEY"] = self._api_key
-        self._client = client or httpx.Client(headers=headers, timeout=httpx.Timeout(30.0))
+        self._client = client or httpx.Client(
+            headers={"Content-Type": "application/json"}, timeout=httpx.Timeout(30.0)
+        )
         self._min_interval = 1.0 / self._max_rps
         self._last_call: float = 0.0
 
@@ -74,14 +73,15 @@ class OpenFigiClient:
             return {}
 
         payload = [{"idType": "ID_CUSIP", "idValue": c} for c in cusips]
+        headers = {"X-OPENFIGI-APIKEY": self._api_key} if self._api_key else None
         self._throttle()
-        resp = self._client.post(OPENFIGI_URL, content=json.dumps(payload))
+        resp = self._client.post(OPENFIGI_URL, content=json.dumps(payload), headers=headers)
         # 429 retry, once
         if resp.status_code == 429:
             logger.warning("openfigi 429; sleeping 6s and retrying")
             time.sleep(6.0)
             self._throttle()
-            resp = self._client.post(OPENFIGI_URL, content=json.dumps(payload))
+            resp = self._client.post(OPENFIGI_URL, content=json.dumps(payload), headers=headers)
         resp.raise_for_status()
         body = resp.json()
 
