@@ -1,0 +1,19 @@
+# Tracked funds for the ETL pipeline.
+# CIK: 10-digit zero-padded string (SEC submissions URL format).
+# Names are free-form and only used for display.
+funds:
+  - { cik: "0001067983", name: "Berkshire Hathaway" }
+  - { cik: "0001350694", name: "Bridgewater Associates" }
+  - { cik: "0001037389", name: "Renaissance Technologies" }
+  - { cik: "0001179392", name: "Two Sigma Investments" }
+  - { cik: "0001423053", name: "Citadel Advisors" }
+  - { cik: "0001273087", name: "Millennium Management" }
+  - { cik: "0001009207", name: "D. E. Shaw & Co." }
+  - { cik: "0001603466", name: "Point72 Asset Management" }
+  - { cik: "0001061768", name: "The Baupost Group" }
+  - { cik: "0001167483", name: "Tiger Global Management" }
+  - { cik: "0001135730", name: "Coatue Management" }
+  - { cik: "0001040273", name: "Third Point" }
+  - { cik: "0001336528", name: "Pershing Square Capital Management" }
+  - { cik: "0000921669", name: "Icahn Capital" }
+  - { cik: "0001656456", name: "Appaloosa Management" }
