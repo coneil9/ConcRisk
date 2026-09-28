@@ -1,0 +1,47 @@
+# Concentration limits framework. All thresholds are fractions (0.10 = 10%).
+# Each rule may define `warning` and/or `breach`. Overrides are keyed by fund CIK.
+
+defaults:
+  lookthrough: false
+  options_scenario: atm   # notional | atm | ignore
+
+rules:
+  - id: single_issuer
+    description: Largest single-issuer weight (share classes rolled up)
+    metric: issuer_weight
+    scope: issuer
+    warning: 0.08
+    breach: 0.10
+
+  - id: top10
+    description: Combined weight of the 10 largest positions
+    metric: top_n_weight
+    params: { n: 10 }
+    warning: 0.50
+    breach: 0.60
+
+  - id: sector
+    description: Weight of any single sector
+    metric: sector_weight
+    scope: sector
+    exclude: [Unclassified]
+    warning: 0.30
+    breach: 0.40
+
+  - id: hhi
+    description: Portfolio HHI
+    metric: hhi
+    warning: 0.10
+    breach: 0.15
+
+  - id: min_effective_n
+    description: Minimum effective number of positions (breach when BELOW)
+    metric: effective_n
+    direction: below
+    warning: 15
+    breach: 10
+
+overrides:
+  # Concentrated by mandate. Relax single-issuer so every quarter isn't a breach.
+  "1067983":   # Berkshire Hathaway
+    single_issuer: { warning: 0.30, breach: 0.40 }
