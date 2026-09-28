@@ -27,3 +27,11 @@ dev = [
     "pytest>=9.1.1",
     "ruff>=0.16.9",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+    "unit: fast, isolated unit tests",
+    "integration: tests that hit the local Postgres",
+]
