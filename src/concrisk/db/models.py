@@ -38,9 +38,7 @@ class Fund(Base):
 
 class Filing(Base):
     __tablename__ = "filings"
-    __table_args__ = (
-        Index("ix_filings_fund_period", "fund_id", "period_of_report"),
-    )
+    __table_args__ = (Index("ix_filings_fund_period", "fund_id", "period_of_report"),)
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     fund_id: Mapped[int] = mapped_column(
@@ -51,9 +49,7 @@ class Filing(Base):
     period_of_report: Mapped[date] = mapped_column(Date, nullable=False)
     filed_at: Mapped[date] = mapped_column(Date, nullable=False)
     amendment_type: Mapped[str | None] = mapped_column(String, nullable=True)
-    is_superseded: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="false"
-    )
+    is_superseded: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
     raw_path: Mapped[str] = mapped_column(String, nullable=False)
     loaded_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -76,20 +72,14 @@ class Security(Base):
     sector: Mapped[str | None] = mapped_column(String, nullable=True)
     industry: Mapped[str | None] = mapped_column(String, nullable=True)
     sector_source: Mapped[str | None] = mapped_column(String, nullable=True)
-    is_etf: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="false"
-    )
-    mapped_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    is_etf: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
+    mapped_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class Position(Base):
     __tablename__ = "positions"
     __table_args__ = (
-        UniqueConstraint(
-            "filing_id", "security_id", "put_call", name="uq_positions_filing_sec_pc"
-        ),
+        UniqueConstraint("filing_id", "security_id", "put_call", name="uq_positions_filing_sec_pc"),
         CheckConstraint(
             "put_call IS NULL OR put_call IN ('PUT','CALL')",
             name="ck_positions_put_call",
@@ -118,16 +108,10 @@ class EtlRun(Base):
     __tablename__ = "etl_runs"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    started_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False
-    )
-    finished_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     status: Mapped[str] = mapped_column(String, nullable=False)
-    stats: Mapped[dict[str, Any]] = mapped_column(
-        JSONB, nullable=False, server_default="{}"
-    )
+    stats: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, server_default="{}")
 
 
 class EtlReject(Base):
