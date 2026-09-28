@@ -1,0 +1,37 @@
+# Share-class rollup for §6.2 largest-issuer weight.
+# Maps ticker -> issuer_key. Tickers not listed here default to `issuer_key = ticker`.
+# The goal is to collapse dual-class listings (e.g. GOOG/GOOGL both refer to Alphabet)
+# so a fund holding 5% GOOG + 4% GOOGL registers as 9% in one issuer.
+issuer_map:
+  # Alphabet
+  GOOG: GOOG
+  GOOGL: GOOG
+  # Berkshire Hathaway
+  BRK.A: BRK
+  BRK.B: BRK
+  BRK-A: BRK    # yfinance uses dashes
+  BRK-B: BRK
+  # Fox
+  FOX: FOX
+  FOXA: FOX
+  # News Corp
+  NWS: NWS
+  NWSA: NWS
+  # Paramount
+  PARA: PARA
+  PARAA: PARA
+  # Lennar
+  LEN: LEN
+  LEN.B: LEN
+  # Heico
+  HEI: HEI
+  HEI.A: HEI
+  # Moog
+  MOG.A: MOG
+  MOG.B: MOG
+  # Lions Gate
+  LGF.A: LGF
+  LGF.B: LGF
+  # Liberty Latin America
+  LILA: LILA
+  LILAK: LILA
