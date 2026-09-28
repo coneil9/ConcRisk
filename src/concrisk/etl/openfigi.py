@@ -18,11 +18,12 @@ logger = logging.getLogger(__name__)
 
 OPENFIGI_URL = "https://api.openfigi.com/v3/mapping"
 
-# API limits (OpenFIGI docs):
-#   no key : 25 jobs per request, 25 requests per 6 s
-#   with key: 100 jobs per request, 250 requests per 6 s
+# API limits (probed 2026-09-28 — OpenFIGI has tightened these over time):
+#   no key : 10 jobs per request (server responds 413 above that),
+#            ~ 25 requests per 6s
+#   with key: 100 jobs per request, 250 requests per 6s
 _LIMITS_WITH_KEY = (100, 250 / 6.0)
-_LIMITS_NO_KEY = (25, 25 / 6.0)
+_LIMITS_NO_KEY = (10, 25 / 6.0)
 
 
 @dataclass(frozen=True)

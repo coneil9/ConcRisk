@@ -15,7 +15,7 @@ def test_batch_size_uses_no_key_limit_when_key_empty(
 ) -> None:
     monkeypatch.setenv("OPENFIGI_API_KEY", "")
     with OpenFigiClient(client=_client(lambda _: httpx.Response(200))) as figi:
-        assert figi.batch_size == 25
+        assert figi.batch_size == 10  # OpenFIGI free-tier cap as of 2026-09
 
 
 def test_batch_size_uses_keyed_limit_when_key_set(
@@ -67,7 +67,7 @@ def test_resolve_cusips_batch_rejects_oversized_input(
         OpenFigiClient(client=_client(lambda _: httpx.Response(200))) as figi,
         pytest.raises(ValueError, match="exceeds limit"),
     ):
-        figi.resolve_cusips_batch(["c"] * 26)
+        figi.resolve_cusips_batch(["c"] * 11)
 
 
 def test_apikey_header_sent_when_present(

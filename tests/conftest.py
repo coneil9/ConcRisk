@@ -20,16 +20,21 @@ def _ensure_schema() -> None:
     Base.metadata.create_all(engine)
 
 
+_TRUNCATE_PHASE1 = text(
+    "TRUNCATE TABLE etl_rejects, etl_runs, positions, filings, "
+    "securities, funds RESTART IDENTITY CASCADE"
+)
+
+
 @pytest.fixture
 def db_session(_ensure_schema: None) -> Iterator[Session]:
-    """Truncate Phase 1 tables and yield a fresh Session."""
+    """Yield a fresh Session; truncate the Phase 1 tables before AND after
+    the test so committed pipeline data doesn't leak between tests or into
+    manual verification runs."""
     with SessionLocal() as session:
-        session.execute(
-            text(
-                "TRUNCATE TABLE etl_rejects, etl_runs, positions, filings, "
-                "securities, funds RESTART IDENTITY CASCADE"
-            )
-        )
+        session.execute(_TRUNCATE_PHASE1)
         session.commit()
         yield session
         session.rollback()
+        session.execute(_TRUNCATE_PHASE1)
+        session.commit()
