@@ -42,9 +42,7 @@ def issuer_weights(
 ) -> pd.Series:
     """Sum weights per issuer_key. Result sorted descending."""
     if issuer_col not in holdings.columns:
-        raise ValueError(
-            f"holdings missing {issuer_col!r} column; call add_issuer_key first"
-        )
+        raise ValueError(f"holdings missing {issuer_col!r} column; call add_issuer_key first")
     grouped = cast(pd.Series, holdings.groupby(issuer_col)[weight_col].sum())
     return cast(pd.Series, grouped.sort_values(ascending=False))
 

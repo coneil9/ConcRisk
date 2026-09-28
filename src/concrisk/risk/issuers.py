@@ -1,4 +1,6 @@
+import math
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 import yaml
@@ -11,6 +13,14 @@ def load_issuer_map(path: Path) -> dict[str, str]:
     return dict(mapping or {})
 
 
+def _is_missing(value: Any) -> bool:
+    if value is None:
+        return True
+    if isinstance(value, float) and math.isnan(value):
+        return True
+    return isinstance(value, str) and not value.strip()
+
+
 def resolve_issuer_key(
     ticker: str | None,
     cusip: str,
@@ -18,13 +28,15 @@ def resolve_issuer_key(
 ) -> str:
     """Ticker rollup with a fallback chain: mapping[ticker] → ticker → cusip.
 
-    Missing ticker (OpenFIGI couldn't resolve the CUSIP) → use the CUSIP
-    itself so the row still participates in aggregation instead of being
-    silently dropped.
+    Missing ticker (OpenFIGI couldn't resolve the CUSIP; empty string;
+    or a pandas NaN when reading from a DataFrame) → use the CUSIP itself
+    so the row still participates in aggregation instead of being silently
+    dropped.
     """
-    if ticker:
-        return mapping.get(ticker, ticker)
-    return cusip
+    if _is_missing(ticker):
+        return cusip
+    assert ticker is not None
+    return mapping.get(ticker, ticker)
 
 
 def add_issuer_key(
