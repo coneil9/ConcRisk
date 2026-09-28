@@ -26,9 +26,7 @@ def normalize_cik(cik: str) -> str:
 
 
 def get_fund(session: Session, cik: str) -> Fund | None:
-    return session.execute(
-        select(Fund).where(Fund.cik == normalize_cik(cik))
-    ).scalar_one_or_none()
+    return session.execute(select(Fund).where(Fund.cik == normalize_cik(cik))).scalar_one_or_none()
 
 
 def build_holdings_df(
