@@ -15,9 +15,7 @@ def resolve_period(session: Session, cik: str, quarter: str | None) -> date:
         try:
             return parse_quarter(quarter)
         except ValueError as e:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-            ) from e
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     period = latest_period_for_fund(session, cik)
     if period is None:
         raise HTTPException(

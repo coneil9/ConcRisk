@@ -62,9 +62,7 @@ def list_funds(
                 cik=s.cik,
                 name=s.name,
                 latest_quarter=(
-                    format_quarter(s.latest_quarter_date)
-                    if s.latest_quarter_date
-                    else None
+                    format_quarter(s.latest_quarter_date) if s.latest_quarter_date else None
                 ),
             )
             for s in summaries
@@ -97,17 +95,13 @@ def get_holdings(
     _require_fund(session, cik)
     period = resolve_period(session, cik, quarter)
     issuer_map = load_issuer_map(ISSUER_MAP_YAML)
-    holdings = build_holdings_df(
-        session, cik=cik, period_of_report=period, issuer_map=issuer_map
-    )
+    holdings = build_holdings_df(session, cik=cik, period_of_report=period, issuer_map=issuer_map)
     if holdings.empty:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"no holdings for CIK {cik} at {period.isoformat()}",
         )
-    weighted = cast(
-        pd.DataFrame, compute_weights(holdings).sort_values("weight", ascending=False)
-    )
+    weighted = cast(pd.DataFrame, compute_weights(holdings).sort_values("weight", ascending=False))
     if top:
         weighted = cast(pd.DataFrame, weighted.head(top))
 

@@ -9,9 +9,7 @@ NOTE_QUARTERLY_STALE = (
     "holdings may be up to ~135 days stale"
 )
 NOTE_LONG_ONLY = "long positions only; no shorts (13F does not report them)"
-NOTE_SECTOR_PENDING = (
-    "sector data is populated in Phase 7; positions may show 'Unclassified'"
-)
+NOTE_SECTOR_PENDING = "sector data is populated in Phase 7; positions may show 'Unclassified'"
 NOTE_OPTIONS_EXCLUDED = "options positions excluded from weights (SPEC §6)"
 
 

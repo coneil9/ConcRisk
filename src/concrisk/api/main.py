@@ -5,6 +5,9 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
 from concrisk.api.auth import require_api_key
+from concrisk.api.routers import breaches as breaches_router
+from concrisk.api.routers import compare as compare_router
+from concrisk.api.routers import exposure as exposure_router
 from concrisk.api.routers import funds as funds_router
 from concrisk.db.session import SessionLocal
 
@@ -27,4 +30,8 @@ def health() -> JSONResponse:
     return JSONResponse(content={"status": "ok", "db": "ok"})
 
 
-app.include_router(funds_router.router, dependencies=[Depends(require_api_key)])
+_auth_dep = [Depends(require_api_key)]
+app.include_router(funds_router.router, dependencies=_auth_dep)
+app.include_router(exposure_router.router, dependencies=_auth_dep)
+app.include_router(breaches_router.router, dependencies=_auth_dep)
+app.include_router(compare_router.router, dependencies=_auth_dep)
