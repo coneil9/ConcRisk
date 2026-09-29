@@ -80,8 +80,6 @@ def resolve_fund_ref(
         name = close[0]
         return ResolvedFund(cik=name_to_cik[name], name=name)
     if close:
-        return AmbiguousFund(
-            candidates=[ResolvedFund(cik=name_to_cik[n], name=n) for n in close]
-        )
+        return AmbiguousFund(candidates=[ResolvedFund(cik=name_to_cik[n], name=n) for n in close])
 
     return UnknownFund()

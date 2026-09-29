@@ -15,8 +15,7 @@ st.caption(
 
 if not os.environ.get("ANTHROPIC_API_KEY"):
     st.warning(
-        "ANTHROPIC_API_KEY is not set in this process. Add it to `.env` and "
-        "restart Streamlit."
+        "ANTHROPIC_API_KEY is not set in this process. Add it to `.env` and restart Streamlit."
     )
     st.stop()
 
@@ -48,13 +47,9 @@ def _render_history() -> None:
                             for call in turn_trace:
                                 st.markdown(f"**{call['name']}**")
                                 st.markdown("Input:")
-                                st.code(
-                                    json.dumps(call["input"], indent=2), language="json"
-                                )
+                                st.code(json.dumps(call["input"], indent=2), language="json")
                                 st.markdown("Result:")
-                                st.code(
-                                    json.dumps(call["result"], indent=2), language="json"
-                                )
+                                st.code(json.dumps(call["result"], indent=2), language="json")
             assistant_idx += 1
 
 
@@ -73,9 +68,7 @@ if user_msg:
 
     # Update history + traces
     st.session_state["chat_history"] = result.messages
-    assistant_msgs = [
-        m for m in result.messages if m["role"] == "assistant"
-    ]
+    assistant_msgs = [m for m in result.messages if m["role"] == "assistant"]
     turn_idx = len(assistant_msgs) - 1
     st.session_state["chat_traces"][turn_idx] = [
         {"name": c.name, "input": c.input, "result": c.result} for c in result.trace

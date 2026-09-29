@@ -86,8 +86,7 @@ def run_chat(
     if not settings.anthropic_api_key:
         return ChatResult(
             text=(
-                "ANTHROPIC_API_KEY is not configured. Set it in `.env` and "
-                "restart the dashboard."
+                "ANTHROPIC_API_KEY is not configured. Set it in `.env` and restart the dashboard."
             ),
         )
 
@@ -108,9 +107,7 @@ def run_chat(
             messages=cast(Any, messages),
         )
         content = list(resp.content)
-        messages.append(
-            {"role": "assistant", "content": _serialize_assistant_content(content)}
-        )
+        messages.append({"role": "assistant", "content": _serialize_assistant_content(content)})
 
         tool_uses = [b for b in content if b.type == "tool_use"]
         if resp.stop_reason == "end_turn" or not tool_uses:

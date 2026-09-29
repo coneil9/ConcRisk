@@ -33,9 +33,7 @@ NOTE_QUARTERLY_STALE = (
     "holdings may be up to ~135 days stale"
 )
 NOTE_LONG_ONLY = "long positions only; 13F does not report shorts"
-NOTE_SECTOR_PENDING = (
-    "sector data not yet populated (Phase 7); positions may show Unclassified"
-)
+NOTE_SECTOR_PENDING = "sector data not yet populated (Phase 7); positions may show Unclassified"
 NOTE_OPTIONS_EXCLUDED = "options positions excluded from weights"
 
 # --- Anthropic tool schemas (SPEC §10, 1:1 with services) ---
@@ -44,8 +42,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
         "name": "list_funds",
         "description": (
-            "List every tracked fund with its latest available quarter "
-            "(or null if never loaded)."
+            "List every tracked fund with its latest available quarter (or null if never loaded)."
         ),
         "input_schema": {"type": "object", "properties": {}, "required": []},
     },
@@ -73,8 +70,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
         "name": "get_holdings",
         "description": (
-            "Return positions with weights for one fund-quarter, sorted "
-            "descending by weight."
+            "Return positions with weights for one fund-quarter, sorted descending by weight."
         ),
         "input_schema": {
             "type": "object",
@@ -172,9 +168,7 @@ def _resolve(fund_ref: str) -> ResolvedFund | dict[str, Any]:
     if isinstance(r, AmbiguousFund):
         return {
             "error": "ambiguous_fund",
-            "candidates": [
-                {"cik": c.cik, "name": c.name} for c in r.candidates
-            ],
+            "candidates": [{"cik": c.cik, "name": c.name} for c in r.candidates],
         }
     return r
 
@@ -208,9 +202,7 @@ def _tool_list_funds(_args: dict[str, Any], session: Session) -> dict[str, Any]:
                 "cik": s.cik,
                 "name": s.name,
                 "latest_quarter": (
-                    format_quarter(s.latest_quarter_date)
-                    if s.latest_quarter_date
-                    else None
+                    format_quarter(s.latest_quarter_date) if s.latest_quarter_date else None
                 ),
             }
             for s in summaries
@@ -259,9 +251,7 @@ def _tool_get_holdings(args: dict[str, Any], session: Session) -> dict[str, Any]
     if isinstance(period, dict):
         return period
     issuer_map = load_issuer_map(ISSUER_MAP_YAML)
-    holdings = build_holdings_df(
-        session, cik=r.cik, period_of_report=period, issuer_map=issuer_map
-    )
+    holdings = build_holdings_df(session, cik=r.cik, period_of_report=period, issuer_map=issuer_map)
     if holdings.empty:
         return {"error": "no_data"}
     weighted = cast(
@@ -316,9 +306,7 @@ def _tool_get_holdings(args: dict[str, Any], session: Session) -> dict[str, Any]
 def _tool_get_exposure(args: dict[str, Any], session: Session) -> dict[str, Any]:
     ticker = args["ticker"]
     quarter = _parse_quarter_arg(args.get("quarter"))
-    rows = issuer_exposure_across_funds(
-        session, ticker=ticker, period_of_report=quarter
-    )
+    rows = issuer_exposure_across_funds(session, ticker=ticker, period_of_report=quarter)
     if not rows:
         return {"error": "no_data", "detail": f"no tracked fund holds {ticker.upper()}"}
     return {
@@ -342,9 +330,7 @@ def _tool_get_exposure(args: dict[str, Any], session: Session) -> dict[str, Any]
 def _tool_get_breaches(args: dict[str, Any], session: Session) -> dict[str, Any]:
     quarter = _parse_quarter_arg(args.get("quarter"))
     severity = args.get("severity")
-    breaches = breaches_for_quarter(
-        session, period_of_report=quarter, severity=severity
-    )
+    breaches = breaches_for_quarter(session, period_of_report=quarter, severity=severity)
     return {
         "breaches": [
             {
@@ -409,9 +395,7 @@ def _tool_compare_funds(args: dict[str, Any], session: Session) -> dict[str, Any
     }
 
 
-def _tool_get_concentration_history(
-    args: dict[str, Any], session: Session
-) -> dict[str, Any]:
+def _tool_get_concentration_history(args: dict[str, Any], session: Session) -> dict[str, Any]:
     r = _resolve(args["fund"])
     if isinstance(r, dict):
         return r
@@ -420,8 +404,7 @@ def _tool_get_concentration_history(
         "fund_cik": r.cik,
         "fund_name": r.name,
         "history": [
-            {"quarter": row["quarter"], "hhi": row["hhi"], "top10": row["top10"]}
-            for row in rows
+            {"quarter": row["quarter"], "hhi": row["hhi"], "top10": row["top10"]} for row in rows
         ],
         "data_notes": [NOTE_QUARTERLY_STALE, NOTE_LONG_ONLY],
     }
@@ -438,9 +421,7 @@ _HANDLERS = {
 }
 
 
-def execute_tool(
-    name: str, arguments: dict[str, Any], session: Session
-) -> dict[str, Any]:
+def execute_tool(name: str, arguments: dict[str, Any], session: Session) -> dict[str, Any]:
     """Dispatch one tool call. Returns a JSON-serializable dict — always,
     even on error, so the agent loop can hand it back to the model."""
     handler = _HANDLERS.get(name)
