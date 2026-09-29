@@ -47,13 +47,13 @@ markers = [
 [tool.ruff]
 line-length = 100
 target-version = "py312"
-src = ["src", "tests", "dashboard"]
+src = ["src", "tests", "dashboard", "evals"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "N", "SIM"]
 
 [tool.pyright]
-include = ["src", "tests", "dashboard"]
+include = ["src", "tests", "dashboard", "evals"]
 pythonVersion = "3.12"
 typeCheckingMode = "basic"
 venvPath = "."

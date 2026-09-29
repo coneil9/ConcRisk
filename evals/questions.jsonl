@@ -1,0 +1,20 @@
+{"id": "q01", "question": "List every tracked fund by name.", "check": "contains_all", "expected": {"contains_all": ["Berkshire", "Bridgewater", "Renaissance"]}}
+{"id": "q02", "question": "How many funds does ConcRisk track in total?", "check": "contains_any", "expected": {"contains_any": ["15", "fifteen"]}}
+{"id": "q03", "question": "What is Citadel's short position in Tesla?", "check": "refusal", "expected": {"refusal_signal": ["don't have", "does not report", "13F", "long positions", "shorts"]}}
+{"id": "q04", "question": "What was Apple's closing price today?", "check": "refusal", "expected": {"refusal_signal": ["don't have", "13F", "quarterly", "not", "price"]}}
+{"id": "q05", "question": "What was Berkshire Hathaway's HHI in its latest 13F?", "check": "contains_all", "expected": {"contains_all": ["Berkshire", "Q"]}}
+{"id": "q06", "question": "Which tracked funds hold Apple stock?", "check": "contains_any", "expected": {"contains_any": ["Berkshire", "AAPL", "Apple", "holds"]}}
+{"id": "q07", "question": "What is the largest single position in Berkshire Hathaway's portfolio?", "check": "contains_any", "expected": {"contains_any": ["AAPL", "Apple", "APPLE", "largest"]}}
+{"id": "q08", "question": "Show me all current concentration breaches.", "check": "contains_any", "expected": {"contains_any": ["breach", "single_issuer", "top10", "hhi", "no breach"]}}
+{"id": "q09", "question": "Compare Berkshire Hathaway's concentration to Pershing Square's.", "check": "contains_all", "expected": {"contains_all": ["Berkshire", "Pershing"]}}
+{"id": "q10", "question": "Show Berkshire Hathaway's HHI history quarter by quarter.", "check": "contains_any", "expected": {"contains_any": ["2026Q", "2025Q", "history", "HHI"]}}
+{"id": "q11", "question": "What is the strike price and expiry on Berkshire's Apple call options?", "check": "refusal", "expected": {"refusal_signal": ["don't", "not report", "13F", "strike", "expiry"]}}
+{"id": "q12", "question": "Give me look-through exposure to Apple that includes ETF holdings.", "check": "refusal", "expected": {"refusal_signal": ["not available", "Phase 7", "look-through", "not yet"]}}
+{"id": "q13", "question": "Which tracked fund has the most concentrated portfolio right now?", "check": "contains_any", "expected": {"contains_any": ["Berkshire", "Pershing", "Bridgewater", "Icahn", "Appaloosa", "Pershing Square", "highest", "HHI"]}}
+{"id": "q14", "question": "Does Pershing Square Capital Management hold Uber?", "check": "contains_any", "expected": {"contains_any": ["UBER", "Uber", "yes", "no", "does", "hold"]}}
+{"id": "q15", "question": "What ticker is Berkshire's largest holding by weight?", "check": "contains_any", "expected": {"contains_any": ["AAPL", "Apple"]}}
+{"id": "q16", "question": "Give me all warning-level breaches (not full breaches) across every fund.", "check": "contains_any", "expected": {"contains_any": ["warning", "no warning", "no breaches"]}}
+{"id": "q17", "question": "What percentage of Berkshire Hathaway's portfolio is in its top 10 holdings?", "check": "contains_all", "expected": {"contains_all": ["Berkshire", "%"]}}
+{"id": "q18", "question": "What is the most recent quarter of data available for Berkshire Hathaway?", "check": "contains_any", "expected": {"contains_any": ["2026Q", "2025Q", "latest"]}}
+{"id": "q19", "question": "List every fund that holds Bank of America (BAC).", "check": "contains_any", "expected": {"contains_any": ["Berkshire", "BAC", "no tracked fund", "Bank of America", "does not"]}}
+{"id": "q20", "question": "Can you fetch me real-time intraday price data for AAPL?", "check": "refusal", "expected": {"refusal_signal": ["don't", "not", "13F", "real-time", "quarterly", "intraday"]}}
