@@ -83,7 +83,8 @@ st.dataframe(
     use_container_width=True,
     hide_index=True,
 )
-st.caption(f"{len(exposures)} fund(s) hold {ticker} (issuer_key={data['exposures'][0]['issuer_key']}).")
+issuer_key = data["exposures"][0]["issuer_key"]
+st.caption(f"{len(exposures)} fund(s) hold {ticker} (issuer_key={issuer_key}).")
 
 with st.expander("Data notes"):
     for note in data.get("data_notes", []):

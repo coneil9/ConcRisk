@@ -26,9 +26,7 @@ with col1:
         index=0,
     )
 with col2:
-    quarter = st.text_input(
-        "Quarter (blank = each fund's latest)", placeholder="2026Q1"
-    )
+    quarter = st.text_input("Quarter (blank = each fund's latest)", placeholder="2026Q1")
 
 params: dict[str, str] = {}
 if severity != "all":

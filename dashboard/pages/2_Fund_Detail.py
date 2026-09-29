@@ -25,9 +25,7 @@ if not funds_with_data:
 col_fund, col_qtr = st.columns([3, 1])
 with col_fund:
     labels = [f"{f['name']} ({f['cik']})" for f in funds_with_data]
-    idx = st.selectbox(
-        "Fund", range(len(labels)), format_func=lambda i: labels[i]
-    )
+    idx = st.selectbox("Fund", range(len(labels)), format_func=lambda i: labels[i])
     fund = funds_with_data[idx]
 with col_qtr:
     quarters = get(f"/funds/{fund['cik']}/quarters")["quarters"]
@@ -37,12 +35,8 @@ with col_qtr:
     quarter = st.selectbox("Quarter", quarters, index=len(quarters) - 1)
 
 try:
-    conc = get(
-        f"/funds/{fund['cik']}/concentration", {"quarter": quarter}
-    )
-    holdings = get(
-        f"/funds/{fund['cik']}/holdings", {"quarter": quarter, "top": 25}
-    )
+    conc = get(f"/funds/{fund['cik']}/concentration", {"quarter": quarter})
+    holdings = get(f"/funds/{fund['cik']}/holdings", {"quarter": quarter, "top": 25})
     history = get(f"/funds/{fund['cik']}/concentration/history")
 except (httpx.HTTPStatusError, httpx.HTTPError) as e:
     st.error(f"Load failed: {e}")
@@ -63,8 +57,7 @@ st.subheader("Holdings (top 25 by weight)")
 labels_h = [h["ticker"] or h["cusip"] for h in holdings["holdings"]]
 weights_h = [h["weight"] for h in holdings["holdings"]]
 hover = [
-    f"{h.get('name') or h['cusip']}<br>"
-    f"{money(h['value_usd'])} — {pct(h['weight'])}"
+    f"{h.get('name') or h['cusip']}<br>{money(h['value_usd'])} — {pct(h['weight'])}"
     for h in holdings["holdings"]
 ]
 if labels_h:
