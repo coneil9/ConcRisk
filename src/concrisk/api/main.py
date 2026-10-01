@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
@@ -14,6 +15,17 @@ from concrisk.db.session import SessionLocal
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="ConcRisk API")
+
+# Dashboard and API live on different Container App FQDNs in prod, so
+# the dashboard's browser-side fetches hit this API cross-origin.
+# `allow_origins=["*"]` is MVP-grade — tighten to the dashboard FQDN
+# once you have it. X-API-Key auth still gates every data route.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["GET"],
+    allow_headers=["X-API-Key", "Content-Type"],
+)
 
 
 @app.get("/health")
