@@ -13,6 +13,13 @@ Results are served through a REST API, a monitoring dashboard, and a chatbot tha
 
 **Live:** _dashboard URL_ · _API docs URL_ · _demo video_
 
+<!-- After `bash deploy/01-provision.sh` + `02-containerapps.sh`, replace the
+     placeholders above with the Container Apps URLs printed by the scripts:
+       dashboard: https://concrisk-dashboard.<envdomain>
+       API docs:  https://concrisk-api.<envdomain>/docs
+-->
+
+
 ## Architecture
 
 _(diagram: SEC EDGAR / OpenFIGI / prices → ETL job → Postgres → risk engine → FastAPI → Streamlit dashboard + LLM chatbot)_
@@ -68,7 +75,25 @@ uv run streamlit run dashboard/app.py
 
 ## Chatbot evaluation
 
-_Accuracy on N eval questions: X% (numeric), Y% (refusals). See `evals/`._
+20-question eval set covering numeric lookups, set questions, and 13F-limitation refusals. Current pass rate: **20/20 (100%)** against seeded Berkshire + Pershing Square data. Run yourself with:
+
+```bash
+uv run python evals/run_evals.py          # requires ANTHROPIC_API_KEY
+```
+
+See [`evals/`](evals/) for the question set and harness.
+
+## Deployment
+
+Full Azure deployment guide: [`deploy/README.md`](deploy/README.md). Three shell scripts (`01-provision.sh`, `02-containerapps.sh`, `03-deploy.sh`) take you from an empty subscription to live Container Apps in about 20 minutes.
+
+Topology (SPEC §11):
+- Postgres Flexible Server (Burstable Standard_B1ms)
+- Azure Container Registry (Basic)
+- Container Apps environment with two apps (API, dashboard) scaling to zero when idle
+- Scheduled Container Apps Job for the daily ETL run
+
+CI (`.github/workflows/ci.yml`) builds and pushes the Docker image to GHCR on every push to `main`. CD (`.github/workflows/deploy.yml`) is manual (`workflow_dispatch`) so there are no accidental prod pushes.
 
 ## Roadmap
 

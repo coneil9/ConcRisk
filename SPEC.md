@@ -219,3 +219,8 @@ On PR and push to main: `uv sync` → ruff → pyright → pytest (unit + integr
 | 2026-09-28 | Streamlit for primary dashboard | Deployable from Mac, same Python stack. Power BI optional in Phase 7 on Windows. |
 | 2026-09-28 | Options via delta scenarios, not Black-Scholes | 13F omits strike/expiry |
 | 2026-09-28 | Chatbot uses tool calling, no text-to-SQL | Grounded, auditable, testable |
+| 2026-10-01 | Shell scripts for Azure IaC (not Bicep/Terraform) | ~15 commands, maps 1:1 to az docs, auditable; Bicep adds build/debug surface not worth it for a demo-size footprint |
+| 2026-10-01 | Container Apps Secrets, not Key Vault | SPEC §11 allowed either; CA secrets are one less resource to provision |
+| 2026-10-01 | Public PG endpoint + firewall rule, not private VNet | Student-credits footprint stays tiny; private-endpoint upgrade is one-line |
+| 2026-10-01 | CI builds image to GHCR; CD is workflow_dispatch only | GHCR needs no deploy secrets; manual CD prevents accidental prod pushes on every merge |
+| 2026-10-01 | Container Apps scale to zero (min-replicas 0) | Dashboard/API idle most of the day; keeps credit burn low |
