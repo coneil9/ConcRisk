@@ -1,3 +1,4 @@
+import datetime as _dt
 from datetime import date, datetime
 from decimal import Decimal
 from typing import Any
@@ -102,6 +103,40 @@ class Position(Base):
 
     filing: Mapped[Filing] = relationship(back_populates="positions")
     security: Mapped[Security] = relationship()
+
+
+class Price(Base):
+    __tablename__ = "prices"
+
+    security_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("securities.id", ondelete="CASCADE"), primary_key=True
+    )
+    date: Mapped[_dt.date] = mapped_column(Date, primary_key=True)
+    close: Mapped[Decimal] = mapped_column(Numeric(20, 4), nullable=False)
+
+
+class EtfConstituent(Base):
+    __tablename__ = "etf_constituents"
+    __table_args__ = (
+        UniqueConstraint(
+            "etf_security_id",
+            "as_of",
+            "constituent_ticker",
+            name="uq_etf_constituents_etf_asof_ticker",
+        ),
+        Index("ix_etf_constituents_etf", "etf_security_id", "as_of"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    etf_security_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("securities.id", ondelete="CASCADE"), nullable=False
+    )
+    as_of: Mapped[date] = mapped_column(Date, nullable=False)
+    constituent_security_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("securities.id"), nullable=True
+    )
+    constituent_ticker: Mapped[str | None] = mapped_column(String, nullable=True)
+    weight: Mapped[Decimal] = mapped_column(Numeric, nullable=False)
 
 
 class EtlRun(Base):
