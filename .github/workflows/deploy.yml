@@ -1,0 +1,29 @@
+name: Deploy to Azure
+
+on:
+  workflow_dispatch:
+    inputs:
+      update_apps:
+        description: "Also update Container Apps revisions after build"
+        type: boolean
+        required: true
+        default: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build + deploy
+        env:
+          RG: ${{ secrets.RESOURCE_GROUP || 'rg-concrisk' }}
+          ACR_NAME: ${{ secrets.ACR_NAME }}
+          IMAGE_TAG: ${{ github.sha }}
+          UPDATE_APPS: ${{ inputs.update_apps }}
+        run: bash deploy/03-deploy.sh
