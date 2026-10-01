@@ -34,8 +34,15 @@ if not ticker:
 
 st.subheader(f"Exposure to {ticker}")
 
+lookthrough = st.checkbox(
+    "Include ETF look-through",
+    value=False,
+    help="Add weight that each fund holds via ETFs (e.g. SPY) that contain this ticker.",
+)
+
 try:
-    data = get(f"/exposure/{ticker}")
+    params = {"lookthrough": "true"} if lookthrough else None
+    data = get(f"/exposure/{ticker}", params)
 except httpx.HTTPStatusError as e:
     if e.response.status_code == 404:
         st.warning(f"No tracked fund holds {ticker}.")
@@ -67,24 +74,34 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=True)
 
 # Detail table
-table_rows = [
-    {
+def _row(e: dict) -> dict:
+    base = {
         "Fund": e["fund_name"],
         "CIK": e["fund_cik"],
         "Quarter": e["quarter"],
         "Ticker": e["ticker"],
-        "Weight": pct(e["weight"]),
+        "Direct weight": pct(e["weight"]),
         "Value": money(e["value_usd"]),
     }
-    for e in sorted_exps
-]
+    if lookthrough:
+        base["Look-through weight"] = pct(e.get("lookthrough_weight"))
+    return base
+
+
 st.dataframe(
-    pd.DataFrame(table_rows),
+    pd.DataFrame([_row(e) for e in sorted_exps]),
     use_container_width=True,
     hide_index=True,
 )
 issuer_key = data["exposures"][0]["issuer_key"]
-st.caption(f"{len(exposures)} fund(s) hold {ticker} (issuer_key={issuer_key}).")
+cov_note = ""
+if lookthrough and data["exposures"]:
+    cov = data["exposures"][0].get("lookthrough_coverage")
+    if cov is not None:
+        cov_note = f" (ETF-constituent coverage {pct(cov)})"
+st.caption(
+    f"{len(exposures)} fund(s) hold {ticker} (issuer_key={issuer_key}).{cov_note}"
+)
 
 with st.expander("Data notes"):
     for note in data.get("data_notes", []):

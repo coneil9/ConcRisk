@@ -34,8 +34,31 @@ with col_qtr:
         st.stop()
     quarter = st.selectbox("Quarter", quarters, index=len(quarters) - 1)
 
+# Phase 7 toggles
+col_opt, col_lt = st.columns(2)
+with col_opt:
+    options_scenario = st.selectbox(
+        "Options scenario",
+        ["none", "ignore", "atm", "notional"],
+        index=0,
+        help="atm = CALL ±0.5 / PUT ∓0.5; notional = ±1.0; ignore = 0. "
+        "'none' excludes options entirely (SPEC §6 default).",
+    )
+with col_lt:
+    lookthrough = st.checkbox(
+        "ETF look-through",
+        value=False,
+        help="Expand ETF positions into their underlying constituents.",
+    )
+
+params: dict[str, str | int | bool] = {"quarter": quarter}
+if options_scenario != "none":
+    params["options_scenario"] = options_scenario
+if lookthrough:
+    params["lookthrough"] = "true"
+
 try:
-    conc = get(f"/funds/{fund['cik']}/concentration", {"quarter": quarter})
+    conc = get(f"/funds/{fund['cik']}/concentration", params)
     holdings = get(f"/funds/{fund['cik']}/holdings", {"quarter": quarter, "top": 25})
     history = get(f"/funds/{fund['cik']}/concentration/history")
 except (httpx.HTTPStatusError, httpx.HTTPError) as e:
@@ -101,9 +124,71 @@ if sw:
 else:
     st.info("no sector data")
 st.caption(
-    "Sector labels come from yfinance in Phase 7 — real portfolios "
-    "currently show as 'Unclassified'."
+    "Sector labels come from the yfinance backfill — run "
+    "`python -m concrisk.etl.sectors` to populate."
 )
+
+# Phase 7: options scenario breakdown
+if conc.get("options_scenario") and conc.get("combined_issuers"):
+    st.divider()
+    st.subheader(f"Combined issuer exposure ({conc['options_scenario']} scenario)")
+    combined = conc["combined_issuers"][:15]
+    issuers = [c["issuer_key"] for c in combined]
+    import plotly.graph_objects as go
+
+    fig = go.Figure()
+    fig.add_bar(
+        x=[c["equity_weight"] for c in combined],
+        y=issuers,
+        orientation="h",
+        name="Equity",
+    )
+    fig.add_bar(
+        x=[c["option_delta_weight"] for c in combined],
+        y=issuers,
+        orientation="h",
+        name=f"Option δ ({conc['options_scenario']})",
+    )
+    fig.update_layout(
+        barmode="relative",
+        margin={"l": 0, "r": 0, "t": 0, "b": 0},
+        height=max(200, 28 * len(combined) + 60),
+        xaxis_tickformat=".1%",
+        yaxis={"autorange": "reversed"},
+    )
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption(
+        f"Options scenario `{conc['options_scenario']}`: combined weight = "
+        "(equity + Σ δ × U_option) / equity NAV. Can exceed 100% when "
+        "options stack onto equity."
+    )
+
+# Phase 7: look-through weights
+if conc.get("lookthrough") and conc.get("lookthrough_weights"):
+    st.divider()
+    cov = conc.get("lookthrough_coverage") or 0.0
+    st.subheader(f"ETF look-through (coverage {pct(cov)})")
+    expanded = sorted(
+        conc["lookthrough_weights"].items(), key=lambda kv: -kv[1]
+    )[:15]
+    fig = px.bar(
+        x=[v for _, v in expanded],
+        y=[k for k, _ in expanded],
+        orientation="h",
+        labels={"x": "Expanded weight", "y": "Ticker"},
+    )
+    fig.update_layout(
+        margin={"l": 0, "r": 0, "t": 0, "b": 0},
+        height=max(200, 28 * len(expanded) + 60),
+        xaxis_tickformat=".1%",
+        yaxis={"autorange": "reversed"},
+    )
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption(
+        f"Expanded = direct weight + Σ (ETF weight × constituent weight). "
+        f"Coverage {pct(cov)} = fraction of ETF holdings we had constituent "
+        "data for; the rest stayed as the ETF ticker."
+    )
 
 st.divider()
 
