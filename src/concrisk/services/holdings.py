@@ -14,6 +14,7 @@ HOLDINGS_COLUMNS = [
     "ticker",
     "name",
     "sector",
+    "is_etf",
     "shares",
     "value_usd",
     "put_call",
@@ -55,6 +56,7 @@ def build_holdings_df(
             Security.ticker,
             Security.name,
             Security.sector,
+            Security.is_etf,
             Position.shares,
             Position.value_usd,
             Position.put_call,
@@ -83,6 +85,7 @@ def build_holdings_df(
                 "ticker": "first",
                 "name": "first",
                 "sector": "first",
+                "is_etf": "first",
                 "shares": "sum",
                 "value_usd": "sum",
             }
