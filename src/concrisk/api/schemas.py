@@ -56,6 +56,13 @@ class IssuerWeight(BaseModel):
     weight: float
 
 
+class CombinedIssuerWeight(BaseModel):
+    issuer_key: str
+    equity_weight: float
+    option_delta_weight: float
+    combined_weight: float
+
+
 class ConcentrationResponse(ResponseBase):
     fund_cik: str
     quarter: str
@@ -65,6 +72,12 @@ class ConcentrationResponse(ResponseBase):
     top10: float
     largest_issuer: IssuerWeight
     sector_weights: dict[str, float]
+    # Phase 7 — populated only when the corresponding query param is set.
+    options_scenario: str | None = None
+    combined_issuers: list[CombinedIssuerWeight] = Field(default_factory=list)
+    lookthrough: bool = False
+    lookthrough_coverage: float | None = None
+    lookthrough_weights: dict[str, float] = Field(default_factory=dict)
 
 
 class ConcentrationHistoryEntry(BaseModel):
@@ -88,10 +101,14 @@ class ExposureRow(BaseModel):
     value_usd: float
     ticker: str
     issuer_key: str
+    # Phase 7 — only when lookthrough=true.
+    lookthrough_weight: float | None = None
+    lookthrough_coverage: float | None = None
 
 
 class ExposureResponse(ResponseBase):
     ticker: str
+    lookthrough: bool = False
     exposures: list[ExposureRow]
 
 

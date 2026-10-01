@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Annotated, cast
+from typing import Annotated, Literal, cast
 
 import pandas as pd
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -11,6 +11,7 @@ from concrisk.api.schemas import (
     NOTE_OPTIONS_EXCLUDED,
     NOTE_QUARTERLY_STALE,
     NOTE_SECTOR_PENDING,
+    CombinedIssuerWeight,
     ConcentrationHistoryEntry,
     ConcentrationHistoryResponse,
     ConcentrationResponse,
@@ -153,18 +154,31 @@ def get_concentration_endpoint(
     cik: str,
     session: Annotated[Session, Depends(get_session)],
     quarter: Annotated[str | None, Query()] = None,
+    options_scenario: Annotated[
+        Literal["notional", "atm", "ignore"] | None, Query()
+    ] = None,
+    lookthrough: Annotated[bool, Query()] = False,
 ) -> ConcentrationResponse:
     _require_fund(session, cik)
     period = resolve_period(session, cik, quarter)
-    snap = get_concentration(session, cik=cik, period_of_report=period)
+    snap = get_concentration(
+        session,
+        cik=cik,
+        period_of_report=period,
+        options_scenario=options_scenario,
+        lookthrough=lookthrough,
+    )
     if snap is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"no holdings for CIK {cik} at {period.isoformat()}",
         )
+    notes = [*_STANDARD_NOTES, NOTE_SECTOR_PENDING]
+    if options_scenario is None:
+        notes.insert(2, NOTE_OPTIONS_EXCLUDED)
     return ConcentrationResponse(
         as_of=snap.as_of,
-        data_notes=[*_STANDARD_NOTES, NOTE_OPTIONS_EXCLUDED, NOTE_SECTOR_PENDING],
+        data_notes=notes,
         fund_cik=normalize_cik(cik),
         quarter=snap.quarter,
         hhi=snap.hhi,
@@ -175,6 +189,19 @@ def get_concentration_endpoint(
             issuer_key=snap.largest_issuer[0], weight=snap.largest_issuer[1]
         ),
         sector_weights=snap.sector_weights,
+        options_scenario=snap.options_scenario,
+        combined_issuers=[
+            CombinedIssuerWeight(
+                issuer_key=c.issuer_key,
+                equity_weight=c.equity_weight,
+                option_delta_weight=c.option_delta_weight,
+                combined_weight=c.combined_weight,
+            )
+            for c in snap.combined_issuers
+        ],
+        lookthrough=snap.lookthrough,
+        lookthrough_coverage=snap.lookthrough_coverage,
+        lookthrough_weights=snap.lookthrough_weights,
     )
 
 

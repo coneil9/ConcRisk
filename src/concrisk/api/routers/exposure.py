@@ -21,6 +21,7 @@ def get_exposure(
     ticker: str,
     session: Annotated[Session, Depends(get_session)],
     quarter: Annotated[str | None, Query()] = None,
+    lookthrough: Annotated[bool, Query()] = False,
 ) -> ExposureResponse:
     period = None
     if quarter:
@@ -28,7 +29,9 @@ def get_exposure(
             period = parse_quarter(quarter)
         except ValueError as e:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
-    exposures = issuer_exposure_across_funds(session, ticker=ticker, period_of_report=period)
+    exposures = issuer_exposure_across_funds(
+        session, ticker=ticker, period_of_report=period, lookthrough=lookthrough
+    )
     if not exposures:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -39,6 +42,7 @@ def get_exposure(
         as_of=latest,
         data_notes=[NOTE_QUARTERLY_STALE, NOTE_LONG_ONLY, NOTE_OPTIONS_EXCLUDED],
         ticker=ticker.upper(),
+        lookthrough=lookthrough,
         exposures=[
             ExposureRowSchema(
                 fund_cik=e.fund_cik,
@@ -49,6 +53,8 @@ def get_exposure(
                 value_usd=e.value_usd,
                 ticker=e.ticker,
                 issuer_key=e.issuer_key,
+                lookthrough_weight=e.lookthrough_weight,
+                lookthrough_coverage=e.lookthrough_coverage,
             )
             for e in exposures
         ],
