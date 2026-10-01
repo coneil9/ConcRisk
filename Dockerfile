@@ -13,13 +13,14 @@ COPY pyproject.toml uv.lock README.md ./
 RUN uv sync --frozen --no-dev --no-install-project
 
 COPY src ./src
-COPY alembic.ini ./
-COPY entrypoint.sh ./
+COPY dashboard ./dashboard
+COPY config ./config
+COPY alembic.ini limits.yaml entrypoint.sh ./
 RUN chmod +x /app/entrypoint.sh && uv sync --frozen --no-dev
 
 ENV PATH="/app/.venv/bin:${PATH}"
 
-EXPOSE 8080
+EXPOSE 8080 8501
 
 ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["api"]

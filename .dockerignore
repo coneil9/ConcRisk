@@ -18,6 +18,5 @@ build
 *.egg-info
 .DS_Store
 tests
-dashboard
 evals
 reference
