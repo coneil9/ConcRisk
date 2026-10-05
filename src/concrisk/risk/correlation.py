@@ -74,7 +74,7 @@ def correlation_clusters(
     corr = cast(pd.DataFrame, returns.corr())
     # Distance matrix per SPEC: d = sqrt(0.5 * (1 - rho)).
     raw = cast(pd.DataFrame, 0.5 * (1 - corr))
-    distances = raw.clip(lower=0).to_numpy()
+    distances = np.asarray(raw.clip(lower=0).to_numpy(), dtype=float).copy()
     np.fill_diagonal(distances, 0.0)
     distances = np.sqrt(distances)
     # Scipy wants a condensed (upper-triangle) distance vector.
