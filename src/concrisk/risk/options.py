@@ -1,4 +1,5 @@
-from typing import Literal, cast
+import math
+from typing import Any, Literal, cast
 
 import pandas as pd
 
@@ -12,10 +13,12 @@ DELTAS: dict[str, dict[str, float]] = {
 }
 
 
-def _delta(scenario: str, put_call: str | None) -> float:
+def _delta(scenario: str, put_call: Any) -> float:
     if put_call is None:
         return 0.0
-    return DELTAS[scenario].get(put_call.upper(), 0.0)
+    if isinstance(put_call, float) and math.isnan(put_call):
+        return 0.0
+    return DELTAS[scenario].get(str(put_call).upper(), 0.0)
 
 
 def combined_issuer_exposure(
