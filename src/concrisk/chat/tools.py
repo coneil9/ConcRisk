@@ -17,6 +17,7 @@ from concrisk.services import (
     breaches_for_quarter,
     build_holdings_df,
     format_quarter,
+    get_clusters,
     get_concentration,
     get_concentration_history,
     issuer_exposure_across_funds,
@@ -155,6 +156,31 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
         "input_schema": {
             "type": "object",
             "properties": {"fund": {"type": "string"}},
+            "required": ["fund"],
+        },
+    },
+    {
+        "name": "get_correlation_clusters",
+        "description": (
+            "Return correlation clusters for a fund-quarter. Groups holdings "
+            "whose daily log returns correlate at or above the threshold — "
+            "flags 'hidden concentration' across different issuers that "
+            "move together. Requires price history (yfinance backfill)."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "fund": {"type": "string"},
+                "quarter": {"type": "string"},
+                "rho_threshold": {
+                    "type": "number",
+                    "description": "Minimum pairwise correlation; default 0.7.",
+                },
+                "min_weight": {
+                    "type": "number",
+                    "description": "Weight floor for inclusion; default 0.005 (0.5%).",
+                },
+            },
             "required": ["fund"],
         },
     },
@@ -458,6 +484,50 @@ def _tool_get_concentration_history(args: dict[str, Any], session: Session) -> d
     }
 
 
+def _tool_get_correlation_clusters(
+    args: dict[str, Any], session: Session
+) -> dict[str, Any]:
+    r = _resolve(args["fund"])
+    if isinstance(r, dict):
+        return r
+    period = _resolve_period(session, r, args.get("quarter"))
+    if isinstance(period, dict):
+        return period
+    rho = float(args.get("rho_threshold", 0.7))
+    mw = float(args.get("min_weight", 0.005))
+    result = get_clusters(
+        session, cik=r.cik, period_of_report=period, rho_threshold=rho, min_weight=mw
+    )
+    if result is None:
+        return {"error": "no_data", "detail": f"no holdings for {r.name} at {period}"}
+    notes = [NOTE_QUARTERLY_STALE, NOTE_LONG_ONLY]
+    if result.insufficient:
+        notes.append("insufficient price history for a reliable correlation window")
+    if result.missing_tickers:
+        notes.append(
+            f"{len(result.missing_tickers)} ticker(s) excluded for missing prices"
+        )
+    return {
+        "fund_cik": r.cik,
+        "fund_name": r.name,
+        "quarter": format_quarter(period),
+        "rho_threshold": rho,
+        "min_weight": mw,
+        "clusters": [
+            {
+                "cluster_id": c.cluster_id,
+                "tickers": list(c.tickers),
+                "weight": c.weight,
+                "avg_correlation": c.avg_correlation,
+            }
+            for c in result.clusters
+        ],
+        "missing_tickers": result.missing_tickers,
+        "insufficient_price_data": result.insufficient,
+        "data_notes": notes,
+    }
+
+
 _HANDLERS = {
     "list_funds": _tool_list_funds,
     "get_concentration": _tool_get_concentration,
@@ -466,6 +536,7 @@ _HANDLERS = {
     "get_breaches": _tool_get_breaches,
     "compare_funds": _tool_compare_funds,
     "get_concentration_history": _tool_get_concentration_history,
+    "get_correlation_clusters": _tool_get_correlation_clusters,
 }
 
 

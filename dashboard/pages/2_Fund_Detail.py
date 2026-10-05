@@ -1,4 +1,5 @@
 import httpx
+import pandas as pd
 import plotly.express as px
 import streamlit as st
 from dashboard.api_client import get
@@ -208,6 +209,40 @@ elif hist_rows:
     st.info("only one quarter of data — history plot needs at least two.")
 else:
     st.info("no history")
+
+# Correlation clusters
+st.divider()
+st.subheader("Correlation clusters")
+try:
+    clusters_data = get(f"/funds/{fund['cik']}/clusters", {"quarter": quarter})
+    cluster_rows = clusters_data["clusters"]
+    if clusters_data.get("insufficient_price_data"):
+        st.info(
+            "Price history is thin for this quarter — "
+            "run `python -m concrisk.etl.prices` to backfill."
+        )
+    if cluster_rows:
+        display = pd.DataFrame(
+            [
+                {
+                    "Members": ", ".join(c["tickers"]),
+                    "Combined weight": pct(c["weight"]),
+                    "Avg correlation": f"{c['avg_correlation']:.2f}",
+                }
+                for c in cluster_rows
+            ]
+        )
+        st.dataframe(display, use_container_width=True, hide_index=True)
+        n_missing = len(clusters_data.get("missing_tickers", []))
+        st.caption(
+            f"Clusters cut at ρ ≥ {clusters_data['rho_threshold']}; "
+            f"min weight {pct(clusters_data['min_weight'])}; "
+            f"{n_missing} ticker(s) excluded for missing prices."
+        )
+    else:
+        st.caption("No correlated clusters at this threshold.")
+except (httpx.HTTPStatusError, httpx.HTTPError) as e:
+    st.warning(f"Clusters unavailable: {e}")
 
 with st.expander("Data notes"):
     for note in conc.get("data_notes", []):
