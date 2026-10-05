@@ -3,6 +3,7 @@ directly by risk/ or db/ code.
 """
 
 from concrisk.services.breaches import breaches_for_quarter
+from concrisk.services.clusters import ClusterResult, get_clusters
 from concrisk.services.concentration import (
     CombinedIssuer,
     ConcentrationSnapshot,
@@ -22,10 +23,12 @@ from concrisk.services.holdings import build_holdings_df, get_fund, normalize_ci
 from concrisk.services.quarters import format_quarter, parse_quarter
 
 __all__ = [
+    "ClusterResult",
     "CombinedIssuer",
     "ConcentrationSnapshot",
     "ExposureRow",
     "FundSummary",
+    "get_clusters",
     "breaches_for_quarter",
     "build_holdings_df",
     "format_quarter",

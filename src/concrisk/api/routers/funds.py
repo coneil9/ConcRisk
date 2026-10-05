@@ -11,6 +11,8 @@ from concrisk.api.schemas import (
     NOTE_OPTIONS_EXCLUDED,
     NOTE_QUARTERLY_STALE,
     NOTE_SECTOR_PENDING,
+    ClusterEntry,
+    ClustersResponse,
     CombinedIssuerWeight,
     ConcentrationHistoryEntry,
     ConcentrationHistoryResponse,
@@ -27,6 +29,7 @@ from concrisk.risk import compute_weights, load_issuer_map
 from concrisk.services import (
     build_holdings_df,
     format_quarter,
+    get_clusters,
     get_concentration,
     get_concentration_history,
     get_fund,
@@ -228,4 +231,58 @@ def get_concentration_history_endpoint(
             )
             for r in rows
         ],
+    )
+
+
+@router.get("/funds/{cik}/clusters", response_model=ClustersResponse)
+def get_clusters_endpoint(
+    cik: str,
+    session: Annotated[Session, Depends(get_session)],
+    quarter: Annotated[str | None, Query()] = None,
+    rho: Annotated[float, Query(ge=0.0, le=1.0)] = 0.7,
+    min_weight: Annotated[float, Query(ge=0.0, le=1.0)] = 0.005,
+) -> ClustersResponse:
+    _require_fund(session, cik)
+    period = resolve_period(session, cik, quarter)
+    result = get_clusters(
+        session,
+        cik=cik,
+        period_of_report=period,
+        rho_threshold=rho,
+        min_weight=min_weight,
+    )
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"no holdings for CIK {cik} at {period.isoformat()}",
+        )
+    notes = [*_STANDARD_NOTES]
+    if result.insufficient:
+        notes.append(
+            "insufficient price history for a reliable 252-day correlation — "
+            "run `python -m concrisk.etl.prices` to backfill"
+        )
+    if result.missing_tickers:
+        notes.append(
+            f"no price data for {len(result.missing_tickers)} ticker(s); "
+            "they were excluded from clustering"
+        )
+    return ClustersResponse(
+        as_of=period,
+        data_notes=notes,
+        fund_cik=normalize_cik(cik),
+        quarter=format_quarter(period),
+        rho_threshold=result.rho_threshold,
+        min_weight=result.min_weight,
+        clusters=[
+            ClusterEntry(
+                cluster_id=c.cluster_id,
+                tickers=list(c.tickers),
+                weight=c.weight,
+                avg_correlation=c.avg_correlation,
+            )
+            for c in result.clusters
+        ],
+        missing_tickers=result.missing_tickers,
+        insufficient_price_data=result.insufficient,
     )

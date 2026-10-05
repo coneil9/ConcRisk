@@ -92,6 +92,23 @@ class ConcentrationHistoryResponse(ResponseBase):
     history: list[ConcentrationHistoryEntry]
 
 
+class ClusterEntry(BaseModel):
+    cluster_id: int
+    tickers: list[str]
+    weight: float
+    avg_correlation: float
+
+
+class ClustersResponse(ResponseBase):
+    fund_cik: str
+    quarter: str
+    rho_threshold: float
+    min_weight: float
+    clusters: list[ClusterEntry]
+    missing_tickers: list[str]
+    insufficient_price_data: bool
+
+
 class ExposureRow(BaseModel):
     fund_cik: str
     fund_name: str
