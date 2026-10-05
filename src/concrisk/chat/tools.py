@@ -50,7 +50,9 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
         "name": "get_concentration",
         "description": (
             "Return HHI, effective N, top5, top10, largest issuer, and sector "
-            "weights for one fund-quarter."
+            "weights for one fund-quarter. Pass options_scenario to also get "
+            "per-issuer combined (equity + delta × option) exposure. Pass "
+            "lookthrough=true to also get ETF-expanded weights."
         ),
         "input_schema": {
             "type": "object",
@@ -62,6 +64,18 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
                 "quarter": {
                     "type": "string",
                     "description": "e.g. '2026Q1'; omit for latest available.",
+                },
+                "options_scenario": {
+                    "type": "string",
+                    "enum": ["notional", "atm", "ignore"],
+                    "description": (
+                        "Delta scenario for options exposure. atm = CALL +0.5 / "
+                        "PUT -0.5; notional = ±1.0; ignore = 0."
+                    ),
+                },
+                "lookthrough": {
+                    "type": "boolean",
+                    "description": "Expand ETF positions via etf_constituents.",
                 },
             },
             "required": ["fund"],
@@ -89,13 +103,18 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
         "name": "get_exposure",
         "description": (
             "For a given ticker, return every tracked fund that holds it "
-            "(rolled up by issuer_key so GOOG/GOOGL sum together)."
+            "(rolled up by issuer_key so GOOG/GOOGL sum together). Pass "
+            "lookthrough=true to also include weight via ETF holdings."
         ),
         "input_schema": {
             "type": "object",
             "properties": {
                 "ticker": {"type": "string"},
                 "quarter": {"type": "string"},
+                "lookthrough": {
+                    "type": "boolean",
+                    "description": "Also expand ETF positions.",
+                },
             },
             "required": ["ticker"],
         },
@@ -218,10 +237,21 @@ def _tool_get_concentration(args: dict[str, Any], session: Session) -> dict[str,
     period = _resolve_period(session, r, args.get("quarter"))
     if isinstance(period, dict):
         return period
-    snap = get_concentration(session, cik=r.cik, period_of_report=period)
+    options_scenario = args.get("options_scenario")
+    lookthrough = bool(args.get("lookthrough", False))
+    snap = get_concentration(
+        session,
+        cik=r.cik,
+        period_of_report=period,
+        options_scenario=options_scenario,
+        lookthrough=lookthrough,
+    )
     if snap is None:
         return {"error": "no_data", "detail": f"no holdings for {r.name} at {period}"}
-    return {
+    notes = [NOTE_QUARTERLY_STALE, NOTE_LONG_ONLY, NOTE_SECTOR_PENDING]
+    if options_scenario is None:
+        notes.insert(2, NOTE_OPTIONS_EXCLUDED)
+    out: dict[str, Any] = {
         "fund_cik": r.cik,
         "fund_name": r.name,
         "quarter": snap.quarter,
@@ -234,13 +264,25 @@ def _tool_get_concentration(args: dict[str, Any], session: Session) -> dict[str,
             "weight": snap.largest_issuer[1],
         },
         "sector_weights": snap.sector_weights,
-        "data_notes": [
-            NOTE_QUARTERLY_STALE,
-            NOTE_LONG_ONLY,
-            NOTE_OPTIONS_EXCLUDED,
-            NOTE_SECTOR_PENDING,
-        ],
+        "data_notes": notes,
     }
+    if options_scenario is not None:
+        out["options_scenario"] = options_scenario
+        out["combined_issuers"] = [
+            {
+                "issuer_key": c.issuer_key,
+                "equity_weight": c.equity_weight,
+                "option_delta_weight": c.option_delta_weight,
+                "combined_weight": c.combined_weight,
+            }
+            for c in snap.combined_issuers[:20]
+        ]
+    if lookthrough:
+        out["lookthrough_coverage"] = snap.lookthrough_coverage
+        # Keep response bounded — top 25 by weight.
+        top = sorted(snap.lookthrough_weights.items(), key=lambda kv: -kv[1])[:25]
+        out["lookthrough_weights"] = {k: v for k, v in top}
+    return out
 
 
 def _tool_get_holdings(args: dict[str, Any], session: Session) -> dict[str, Any]:
@@ -306,11 +348,15 @@ def _tool_get_holdings(args: dict[str, Any], session: Session) -> dict[str, Any]
 def _tool_get_exposure(args: dict[str, Any], session: Session) -> dict[str, Any]:
     ticker = args["ticker"]
     quarter = _parse_quarter_arg(args.get("quarter"))
-    rows = issuer_exposure_across_funds(session, ticker=ticker, period_of_report=quarter)
+    lookthrough = bool(args.get("lookthrough", False))
+    rows = issuer_exposure_across_funds(
+        session, ticker=ticker, period_of_report=quarter, lookthrough=lookthrough
+    )
     if not rows:
         return {"error": "no_data", "detail": f"no tracked fund holds {ticker.upper()}"}
     return {
         "ticker": ticker.upper(),
+        "lookthrough": lookthrough,
         "exposures": [
             {
                 "fund_cik": e.fund_cik,
@@ -320,6 +366,8 @@ def _tool_get_exposure(args: dict[str, Any], session: Session) -> dict[str, Any]
                 "value_usd": e.value_usd,
                 "ticker": e.ticker,
                 "issuer_key": e.issuer_key,
+                "lookthrough_weight": e.lookthrough_weight,
+                "lookthrough_coverage": e.lookthrough_coverage,
             }
             for e in rows
         ],

@@ -9,8 +9,14 @@ to one decimal (e.g. 12.3%) and dollar amounts compactly (e.g. $296B, $45.6M).
 - Mention 13F limitations when relevant: 13F is quarterly and up to ~135 days \
 stale, covers long positions only (no shorts), and reports options with the \
 underlying's value but not strike or expiry.
-- If the user asks about ETF look-through or options scenarios (delta, notional, \
-put/call sensitivity), say those aren't available yet — Phase 7.
+- For options questions, pass `options_scenario` to get_concentration \
+(notional / atm / ignore) and cite the scenario name in the answer: \
+"combined exposure under the atm scenario is …". The scenarios are \
+delta-based assumptions (atm = ±0.5, notional = ±1.0), not real deltas.
+- For ETF look-through questions, pass `lookthrough=true` to \
+get_concentration or get_exposure and cite the lookthrough_coverage \
+("the response expands 87% of ETF weight; the rest remains as the ETF ticker").
+- For "which positions move together" questions, use get_correlation_clusters.
 - Prefer CIK for fund arguments when unambiguous. If a fund name is ambiguous, \
 show the candidates the tool returned and ask the user to pick one.
 - You have at most 6 tool-call rounds per question. Plan calls efficiently.
