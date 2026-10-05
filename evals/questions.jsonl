@@ -9,8 +9,8 @@
 {"id": "q09", "question": "Compare Berkshire Hathaway's concentration to Pershing Square's.", "check": "contains_all", "expected": {"contains_all": ["Berkshire", "Pershing"]}}
 {"id": "q10", "question": "Show Berkshire Hathaway's HHI history quarter by quarter.", "check": "contains_any", "expected": {"contains_any": ["2026Q", "2025Q", "history", "HHI"]}}
 {"id": "q11", "question": "What is the strike price and expiry on Berkshire's Apple call options?", "check": "refusal", "expected": {"refusal_signal": ["don't", "not report", "13F", "strike", "expiry"]}}
-{"id": "q12", "question": "Give me look-through exposure to Apple that includes ETF holdings.", "check": "refusal", "expected": {"refusal_signal": ["not available", "Phase 7", "look-through", "not yet"]}}
-{"id": "q13", "question": "Which tracked fund has the most concentrated portfolio right now?", "check": "contains_any", "expected": {"contains_any": ["Berkshire", "Pershing", "Bridgewater", "Icahn", "Appaloosa", "Pershing Square", "highest", "HHI"]}}
+{"id": "q12", "question": "What is Berkshire's exposure to Apple with ETF look-through included?", "check": "contains_any", "expected": {"contains_any": ["Apple", "AAPL", "look-through", "coverage", "lookthrough"]}}
+{"id": "q13", "question": "Which tracked fund has the most concentrated portfolio right now?", "check": "contains_any", "expected": {"contains_any": ["Berkshire", "Pershing", "Bridgewater", "Icahn", "Appaloosa", "highest", "HHI"]}}
 {"id": "q14", "question": "Does Pershing Square Capital Management hold Uber?", "check": "contains_any", "expected": {"contains_any": ["UBER", "Uber", "yes", "no", "does", "hold"]}}
 {"id": "q15", "question": "What ticker is Berkshire's largest holding by weight?", "check": "contains_any", "expected": {"contains_any": ["AAPL", "Apple"]}}
 {"id": "q16", "question": "Give me all warning-level breaches (not full breaches) across every fund.", "check": "contains_any", "expected": {"contains_any": ["warning", "no warning", "no breaches"]}}
@@ -18,3 +18,33 @@
 {"id": "q18", "question": "What is the most recent quarter of data available for Berkshire Hathaway?", "check": "contains_any", "expected": {"contains_any": ["2026Q", "2025Q", "latest"]}}
 {"id": "q19", "question": "List every fund that holds Bank of America (BAC).", "check": "contains_any", "expected": {"contains_any": ["Berkshire", "BAC", "no tracked fund", "Bank of America", "does not"]}}
 {"id": "q20", "question": "Can you fetch me real-time intraday price data for AAPL?", "check": "refusal", "expected": {"refusal_signal": ["don't", "not", "13F", "real-time", "quarterly", "intraday"]}}
+{"id": "q21", "question": "What is Berkshire's combined issuer exposure to Apple under the atm options scenario?", "check": "contains_any", "expected": {"contains_any": ["atm", "Apple", "AAPL", "scenario", "combined"]}}
+{"id": "q22", "question": "Give me Pershing Square's concentration under the notional options scenario.", "check": "contains_any", "expected": {"contains_any": ["notional", "Pershing", "scenario"]}}
+{"id": "q23", "question": "If we ignore options entirely, what's Berkshire's HHI?", "check": "contains_any", "expected": {"contains_any": ["ignore", "HHI", "Berkshire", "scenario"]}}
+{"id": "q24", "question": "Does the atm scenario inflate Berkshire's Apple exposure?", "check": "contains_any", "expected": {"contains_any": ["atm", "scenario", "Apple", "exposure", "equity", "options"]}}
+{"id": "q25", "question": "What's the delta used for a PUT in the atm scenario?", "check": "contains_any", "expected": {"contains_any": ["-0.5", "0.5", "PUT", "atm", "delta"]}}
+{"id": "q26", "question": "Can you compute Black-Scholes delta for Berkshire's SPY calls?", "check": "refusal", "expected": {"refusal_signal": ["don't", "not", "Black-Scholes", "scenario", "strike", "expiry"]}}
+{"id": "q27", "question": "If Berkshire holds SPY, what's its look-through exposure to Microsoft?", "check": "contains_any", "expected": {"contains_any": ["Microsoft", "MSFT", "look-through", "lookthrough", "SPY", "coverage"]}}
+{"id": "q28", "question": "What's the look-through coverage on Berkshire's latest portfolio?", "check": "contains_any", "expected": {"contains_any": ["coverage", "look-through", "lookthrough", "%"]}}
+{"id": "q29", "question": "Expand ETF positions and tell me Berkshire's top expanded holdings.", "check": "contains_any", "expected": {"contains_any": ["look-through", "lookthrough", "ETF", "expanded", "Apple", "AAPL"]}}
+{"id": "q30", "question": "Which fund has the highest exposure to the S&P 500 ETF?", "check": "contains_any", "expected": {"contains_any": ["SPY", "S&P", "no tracked fund", "doesn't", "don't"]}}
+{"id": "q31", "question": "Show me correlation clusters in Berkshire's portfolio.", "check": "contains_any", "expected": {"contains_any": ["cluster", "correlation", "insufficient", "price history", "Berkshire"]}}
+{"id": "q32", "question": "Are there any hidden concentrations in Pershing Square?", "check": "contains_any", "expected": {"contains_any": ["cluster", "correlation", "hidden", "Pershing", "no cluster", "insufficient"]}}
+{"id": "q33", "question": "What tickers move together most strongly for Berkshire?", "check": "contains_any", "expected": {"contains_any": ["cluster", "correlation", "together", "insufficient", "price"]}}
+{"id": "q34", "question": "Use a 0.8 correlation threshold for Berkshire clusters.", "check": "contains_any", "expected": {"contains_any": ["0.8", "cluster", "threshold", "Berkshire", "insufficient", "correlation"]}}
+{"id": "q35", "question": "What's the single-issuer limit for Berkshire specifically?", "check": "contains_any", "expected": {"contains_any": ["Berkshire", "0.4", "40%", "override", "single", "limit"]}}
+{"id": "q36", "question": "What is the sector breakdown of Pershing Square's portfolio?", "check": "contains_any", "expected": {"contains_any": ["sector", "Pershing", "Unclassified", "%"]}}
+{"id": "q37", "question": "Is Berkshire's technology weight above 30%?", "check": "contains_any", "expected": {"contains_any": ["sector", "Tech", "Unclassified", "Berkshire", "%", "weight"]}}
+{"id": "q38", "question": "What is the top-5 concentration for Pershing Square?", "check": "contains_all", "expected": {"contains_all": ["Pershing", "%"]}}
+{"id": "q39", "question": "Give me an effective-N number for Berkshire Hathaway.", "check": "contains_any", "expected": {"contains_any": ["effective", "N", "Berkshire", "positions"]}}
+{"id": "q40", "question": "Can you predict next quarter's HHI for Berkshire?", "check": "refusal", "expected": {"refusal_signal": ["don't", "can't", "predict", "forecast", "13F", "not", "future"]}}
+{"id": "q41", "question": "Does ConcRisk track Vanguard?", "check": "contains_any", "expected": {"contains_any": ["Vanguard", "not", "don't", "no"]}}
+{"id": "q42", "question": "What are the three options scenarios available?", "check": "contains_all", "expected": {"contains_all": ["notional", "atm", "ignore"]}}
+{"id": "q43", "question": "Compare Pershing Square and Icahn Capital.", "check": "contains_all", "expected": {"contains_all": ["Pershing", "Icahn"]}}
+{"id": "q44", "question": "Does Berkshire breach the sector limit?", "check": "contains_any", "expected": {"contains_any": ["sector", "breach", "Berkshire", "Unclassified", "no breach", "limit"]}}
+{"id": "q45", "question": "What's the overall effective number of positions across all tracked funds?", "check": "contains_any", "expected": {"contains_any": ["effective", "N", "position", "fund"]}}
+{"id": "q46", "question": "Which fund is most exposed to Microsoft?", "check": "contains_any", "expected": {"contains_any": ["Microsoft", "MSFT", "no tracked fund", "exposure"]}}
+{"id": "q47", "question": "What proportion of ETF weight could not be expanded for Berkshire?", "check": "contains_any", "expected": {"contains_any": ["coverage", "lookthrough", "look-through", "ETF", "%", "no ETF"]}}
+{"id": "q48", "question": "Buy me 100 shares of AAPL.", "check": "refusal", "expected": {"refusal_signal": ["don't", "can't", "cannot", "not", "trade", "execute", "buy"]}}
+{"id": "q49", "question": "What is the earliest quarter you have Berkshire data for?", "check": "contains_any", "expected": {"contains_any": ["2026Q", "2025Q", "quarter", "earliest", "available"]}}
+{"id": "q50", "question": "Can the chatbot execute SQL against the database?", "check": "refusal", "expected": {"refusal_signal": ["don't", "can't", "cannot", "SQL", "tool", "no"]}}
