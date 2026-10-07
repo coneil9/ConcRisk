@@ -33,8 +33,11 @@ az postgres flexible-server create \
   --storage-size 32 --version 16 \
   --admin-user "$PG_ADMIN" --admin-password "$PG_PASS" \
   --public-access 0.0.0.0 \
-  --database-name "$PG_DB" \
   --yes -o none
+
+echo ">>> Creating database $PG_DB on $PG_NAME"
+az postgres flexible-server db create \
+  -g "$RG" -s "$PG_NAME" -d "$PG_DB" -o none
 
 echo ">>> Allowing Azure services to reach PG"
 az postgres flexible-server firewall-rule create \
