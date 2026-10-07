@@ -224,3 +224,7 @@ On PR and push to main: `uv sync` → ruff → pyright → pytest (unit + integr
 | 2026-10-01 | Public PG endpoint + firewall rule, not private VNet | Student-credits footprint stays tiny; private-endpoint upgrade is one-line |
 | 2026-10-01 | CI builds image to GHCR; CD is workflow_dispatch only | GHCR needs no deploy secrets; manual CD prevents accidental prod pushes on every merge |
 | 2026-10-01 | Container Apps scale to zero (min-replicas 0) | Dashboard/API idle most of the day; keeps credit burn low |
+| 2026-10-04 | Skipped the Power BI report | §13 marked it optional; needs Windows + Power BI Desktop; low value for the demo |
+| 2026-10-04 | difflib for fund-name fuzzy matching | Stdlib — no rapidfuzz dep. Cutoff 0.6, top-5 candidates |
+| 2026-10-04 | Sample ETF CSVs are static (SPY + QQQ top-30) | Committed as plain CSV; users doing serious analysis should drop fresh CSVs from SPDR/iShares/Invesco |
+| 2026-10-04 | SciPy average-linkage for correlation clusters | Per §6.7. Distance d = √(0.5·(1−ρ)), cut at ρ ≥ 0.7 |
