@@ -75,7 +75,7 @@ uv run streamlit run dashboard/app.py
 
 ## Chatbot evaluation
 
-20-question eval set covering numeric lookups, set questions, and 13F-limitation refusals. Current pass rate: **20/20 (100%)** against seeded Berkshire + Pershing Square data. Run yourself with:
+50-question eval set covering numeric lookups, set questions, options scenarios, ETF look-through, correlation clusters, and 13F-limitation refusals. Current pass rate: **50/50 (100%)** against seeded Berkshire + Pershing Square data. Run yourself with:
 
 ```bash
 uv run python evals/run_evals.py          # requires ANTHROPIC_API_KEY
@@ -97,11 +97,11 @@ CI (`.github/workflows/ci.yml`) builds and pushes the Docker image to GHCR on ev
 
 ## Roadmap
 
-- [ ] Phase 0: Scaffold and CI
-- [ ] Phase 1: ETL
-- [ ] Phase 2: Risk engine and limits
-- [ ] Phase 3: API
-- [ ] Phase 4: Dashboard
-- [ ] Phase 5: Chatbot and evals
-- [ ] Phase 6: Azure deployment
-- [ ] Phase 7: Look-through, options scenarios, correlation clusters
+- [x] Phase 0: Scaffold and CI
+- [x] Phase 1: ETL
+- [x] Phase 2: Risk engine and limits
+- [x] Phase 3: API
+- [x] Phase 4: Dashboard
+- [x] Phase 5: Chatbot and evals
+- [x] Phase 7: Look-through, options scenarios, correlation clusters
+- [ ] Phase 6: Azure deployment (code complete; provisioning pending)
