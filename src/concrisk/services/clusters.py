@@ -34,18 +34,15 @@ def _load_prices_wide(
     if not tickers:
         return pd.DataFrame(), []
     start = end - timedelta(days=int(window_days * 1.6))  # weekend cushion
-    rows = (
-        session.execute(
-            select(Security.ticker, Price.date, Price.close)
-            .join(Price, Price.security_id == Security.id)
-            .where(
-                Security.ticker.in_(tickers),
-                Price.date >= start,
-                Price.date <= end,
-            )
+    rows = session.execute(
+        select(Security.ticker, Price.date, Price.close)
+        .join(Price, Price.security_id == Security.id)
+        .where(
+            Security.ticker.in_(tickers),
+            Price.date >= start,
+            Price.date <= end,
         )
-        .all()
-    )
+    ).all()
     if not rows:
         return pd.DataFrame(), list(tickers)
     df_long = pd.DataFrame(rows, columns=["ticker", "date", "close"])
@@ -73,9 +70,7 @@ def get_clusters(
         return None
 
     weighted = compute_weights(holdings)
-    tickers = (
-        cast(pd.Series, weighted["ticker"]).dropna().astype(str).unique().tolist()
-    )
+    tickers = cast(pd.Series, weighted["ticker"]).dropna().astype(str).unique().tolist()
     weights_by_ticker: dict[str, float] = {}
     for _, row in weighted.iterrows():
         tkr = row["ticker"]
@@ -84,14 +79,10 @@ def get_clusters(
         if isinstance(tkr, float) and (tkr != tkr):  # NaN check (NaN != NaN)
             continue
         key = str(tkr)
-        weights_by_ticker[key] = weights_by_ticker.get(key, 0.0) + float(
-            cast(float, row["weight"])
-        )
+        weights_by_ticker[key] = weights_by_ticker.get(key, 0.0) + float(cast(float, row["weight"]))
     weights = pd.Series(weights_by_ticker, dtype=float)
 
-    prices, missing = _load_prices_wide(
-        session, tickers, period_of_report, RETURN_WINDOW_DAYS
-    )
+    prices, missing = _load_prices_wide(session, tickers, period_of_report, RETURN_WINDOW_DAYS)
     prices_empty = bool(getattr(prices, "empty", True))
     if prices_empty:
         return ClusterResult(

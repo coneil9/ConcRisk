@@ -169,9 +169,7 @@ if conc.get("lookthrough") and conc.get("lookthrough_weights"):
     st.divider()
     cov = conc.get("lookthrough_coverage") or 0.0
     st.subheader(f"ETF look-through (coverage {pct(cov)})")
-    expanded = sorted(
-        conc["lookthrough_weights"].items(), key=lambda kv: -kv[1]
-    )[:15]
+    expanded = sorted(conc["lookthrough_weights"].items(), key=lambda kv: -kv[1])[:15]
     fig = px.bar(
         x=[v for _, v in expanded],
         y=[k for k, _ in expanded],

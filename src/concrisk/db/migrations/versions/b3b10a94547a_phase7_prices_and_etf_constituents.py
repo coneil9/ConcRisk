@@ -27,9 +27,7 @@ def upgrade() -> None:
         sa.Column("constituent_ticker", sa.String(), nullable=True),
         sa.Column("weight", sa.Numeric(), nullable=False),
         sa.ForeignKeyConstraint(["constituent_security_id"], ["securities.id"]),
-        sa.ForeignKeyConstraint(
-            ["etf_security_id"], ["securities.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["etf_security_id"], ["securities.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint(
             "etf_security_id",
@@ -38,9 +36,7 @@ def upgrade() -> None:
             name="uq_etf_constituents_etf_asof_ticker",
         ),
     )
-    op.create_index(
-        "ix_etf_constituents_etf", "etf_constituents", ["etf_security_id", "as_of"]
-    )
+    op.create_index("ix_etf_constituents_etf", "etf_constituents", ["etf_security_id", "as_of"])
     op.create_table(
         "prices",
         sa.Column("security_id", sa.BigInteger(), nullable=False),

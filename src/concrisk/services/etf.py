@@ -43,7 +43,5 @@ def load_latest_constituents(
     for etf_ticker, con_ticker, weight in session.execute(stmt).all():
         if not etf_ticker or not con_ticker:
             continue
-        out.setdefault(str(etf_ticker).upper(), []).append(
-            (str(con_ticker).upper(), float(weight))
-        )
+        out.setdefault(str(etf_ticker).upper(), []).append((str(con_ticker).upper(), float(weight)))
     return out

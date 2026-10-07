@@ -73,6 +73,7 @@ fig.update_layout(
 )
 st.plotly_chart(fig, use_container_width=True)
 
+
 # Detail table
 def _row(e: dict) -> dict:
     base = {
@@ -99,9 +100,7 @@ if lookthrough and data["exposures"]:
     cov = data["exposures"][0].get("lookthrough_coverage")
     if cov is not None:
         cov_note = f" (ETF-constituent coverage {pct(cov)})"
-st.caption(
-    f"{len(exposures)} fund(s) hold {ticker} (issuer_key={issuer_key}).{cov_note}"
-)
+st.caption(f"{len(exposures)} fund(s) hold {ticker} (issuer_key={issuer_key}).{cov_note}")
 
 with st.expander("Data notes"):
     for note in data.get("data_notes", []):

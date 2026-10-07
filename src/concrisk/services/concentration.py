@@ -101,9 +101,7 @@ def get_concentration(
     lookthrough_weights: dict[str, float] = {}
     lookthrough_coverage: float | None = None
     if lookthrough:
-        constituents = load_latest_constituents(
-            session, as_of_cutoff=period_of_report
-        )
+        constituents = load_latest_constituents(session, as_of_cutoff=period_of_report)
         result = apply_lookthrough(weighted, constituents)
         lookthrough_weights = {str(k): float(v) for k, v in result.weights.items()}
         lookthrough_coverage = result.coverage

@@ -69,17 +69,11 @@ def issuer_exposure_across_funds(
         matches = cast(pd.DataFrame, weighted[weighted["issuer_key"] == target_issuer])
         if matches.empty and not (lookthrough_w and lookthrough_w > 0):
             continue
-        total_weight = (
-            float(cast(pd.Series, matches["weight"]).sum()) if not matches.empty else 0.0
-        )
+        total_weight = float(cast(pd.Series, matches["weight"]).sum()) if not matches.empty else 0.0
         total_value = (
-            float(cast(pd.Series, matches["value_usd"]).sum())
-            if not matches.empty
-            else 0.0
+            float(cast(pd.Series, matches["value_usd"]).sum()) if not matches.empty else 0.0
         )
-        first_ticker = (
-            matches.iloc[0]["ticker"] if not matches.empty else None
-        )
+        first_ticker = matches.iloc[0]["ticker"] if not matches.empty else None
         has_ticker = first_ticker is not None and pd.notna(first_ticker)
         display_ticker = str(first_ticker) if has_ticker else ticker_upper
         out.append(

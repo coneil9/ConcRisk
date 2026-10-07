@@ -157,9 +157,7 @@ def get_concentration_endpoint(
     cik: str,
     session: Annotated[Session, Depends(get_session)],
     quarter: Annotated[str | None, Query()] = None,
-    options_scenario: Annotated[
-        Literal["notional", "atm", "ignore"] | None, Query()
-    ] = None,
+    options_scenario: Annotated[Literal["notional", "atm", "ignore"] | None, Query()] = None,
     lookthrough: Annotated[bool, Query()] = False,
 ) -> ConcentrationResponse:
     _require_fund(session, cik)

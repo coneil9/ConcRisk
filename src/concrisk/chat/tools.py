@@ -484,9 +484,7 @@ def _tool_get_concentration_history(args: dict[str, Any], session: Session) -> d
     }
 
 
-def _tool_get_correlation_clusters(
-    args: dict[str, Any], session: Session
-) -> dict[str, Any]:
+def _tool_get_correlation_clusters(args: dict[str, Any], session: Session) -> dict[str, Any]:
     r = _resolve(args["fund"])
     if isinstance(r, dict):
         return r
@@ -504,9 +502,7 @@ def _tool_get_correlation_clusters(
     if result.insufficient:
         notes.append("insufficient price history for a reliable correlation window")
     if result.missing_tickers:
-        notes.append(
-            f"{len(result.missing_tickers)} ticker(s) excluded for missing prices"
-        )
+        notes.append(f"{len(result.missing_tickers)} ticker(s) excluded for missing prices")
     return {
         "fund_cik": r.cik,
         "fund_name": r.name,

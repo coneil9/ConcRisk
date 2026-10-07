@@ -56,9 +56,7 @@ def combined_issuer_exposure(
     df["_delta"] = [
         _delta(scenario, pc)
         for pc in (
-            cast(pd.Series, df[put_call_col]).tolist()
-            if put_call is not None
-            else [None] * len(df)
+            cast(pd.Series, df[put_call_col]).tolist() if put_call is not None else [None] * len(df)
         )
     ]
     df["_signed_value"] = cast(pd.Series, df[value_col]).astype(float) * df["_delta"]

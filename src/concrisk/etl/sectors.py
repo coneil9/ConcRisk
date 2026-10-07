@@ -48,9 +48,7 @@ def _fetch_sector(ticker: str) -> tuple[str | None, str | None]:
     return None, None
 
 
-def _target_securities(
-    session: Session, cik: str | None, force: bool
-) -> list[Security]:
+def _target_securities(session: Session, cik: str | None, force: bool) -> list[Security]:
     stmt = select(Security).where(
         Security.ticker.is_not(None),
         Security.ticker != "",
@@ -59,9 +57,7 @@ def _target_securities(
     if not force:
         stmt = stmt.where(Security.sector.is_(None))
     if cik is not None:
-        fund = session.execute(
-            select(Fund).where(Fund.cik == cik.zfill(10))
-        ).scalar_one_or_none()
+        fund = session.execute(select(Fund).where(Fund.cik == cik.zfill(10))).scalar_one_or_none()
         if fund is None:
             return []
         stmt = stmt.where(
@@ -97,9 +93,7 @@ def backfill_sectors(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="concrisk.etl.sectors")
     parser.add_argument("--fund", type=str, default=None, help="CIK filter")
-    parser.add_argument(
-        "--force", action="store_true", help="Re-fetch even if sector is set"
-    )
+    parser.add_argument("--force", action="store_true", help="Re-fetch even if sector is set")
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args(argv)
     logging.basicConfig(

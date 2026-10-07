@@ -63,9 +63,7 @@ def _ensure_etf_security(session: Session, ticker: str) -> Security:
     ).scalar_one_or_none()
     if sec is None:
         cusip = KNOWN_ETF_CUSIPS.get(ticker, f"ETF-{ticker}")
-        sec = session.execute(
-            select(Security).where(Security.cusip == cusip)
-        ).scalar_one_or_none()
+        sec = session.execute(select(Security).where(Security.cusip == cusip)).scalar_one_or_none()
         if sec is None:
             sec = Security(cusip=cusip, ticker=ticker, name=ticker, is_etf=True)
             session.add(sec)
@@ -89,9 +87,7 @@ def _load_rows(path: Path) -> list[tuple[str, float]]:
         return [(r["ticker"].strip().upper(), float(r["weight"])) for r in reader]
 
 
-def load_etf_csv(
-    session: Session, csv_path: Path, etf_ticker: str, as_of: date
-) -> int:
+def load_etf_csv(session: Session, csv_path: Path, etf_ticker: str, as_of: date) -> int:
     """Load one ETF constituents CSV into the database.
 
     Idempotent: existing (etf, as_of, ticker) rows are overwritten.
@@ -119,9 +115,7 @@ def load_etf_csv(
 
     # Resolve each constituent ticker to a security_id when possible.
     tickers = [t for t, _ in rows]
-    sec_rows = session.execute(
-        select(Security).where(Security.ticker.in_(tickers))
-    ).scalars().all()
+    sec_rows = session.execute(select(Security).where(Security.ticker.in_(tickers))).scalars().all()
     sec_by_ticker: dict[str, int] = {}
     for s in sec_rows:
         if s.ticker:

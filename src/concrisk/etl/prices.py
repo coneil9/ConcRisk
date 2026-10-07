@@ -96,9 +96,7 @@ def _target_tickers(session: Session, cik: str | None) -> list[tuple[int, str]]:
         Security.is_etf.is_(False),
     )
     if cik is not None:
-        fund = session.execute(
-            select(Fund).where(Fund.cik == cik.zfill(10))
-        ).scalar_one_or_none()
+        fund = session.execute(select(Fund).where(Fund.cik == cik.zfill(10))).scalar_one_or_none()
         if fund is None:
             return []
         stmt = stmt.where(
@@ -111,16 +109,18 @@ def _target_tickers(session: Session, cik: str | None) -> list[tuple[int, str]]:
     return [(int(sid), str(t)) for sid, t in session.execute(stmt).all()]
 
 
-def _existing_dates(
-    session: Session, security_id: int, start: date, end: date
-) -> set[date]:
-    rows = session.execute(
-        select(Price.date).where(
-            Price.security_id == security_id,
-            Price.date >= start,
-            Price.date <= end,
+def _existing_dates(session: Session, security_id: int, start: date, end: date) -> set[date]:
+    rows = (
+        session.execute(
+            select(Price.date).where(
+                Price.security_id == security_id,
+                Price.date >= start,
+                Price.date <= end,
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return set(rows)
 
 
@@ -163,9 +163,7 @@ def backfill_prices(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="concrisk.etl.prices")
     parser.add_argument("--fund", type=str, default=None, help="CIK filter")
-    parser.add_argument(
-        "--days", type=int, default=DEFAULT_DAYS, help="Trading-day history"
-    )
+    parser.add_argument("--days", type=int, default=DEFAULT_DAYS, help="Trading-day history")
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args(argv)
     logging.basicConfig(
