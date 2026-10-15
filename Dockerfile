@@ -18,7 +18,8 @@ COPY config ./config
 COPY alembic.ini limits.yaml entrypoint.sh ./
 RUN chmod +x /app/entrypoint.sh && uv sync --frozen --no-dev
 
-ENV PATH="/app/.venv/bin:${PATH}"
+ENV PATH="/app/.venv/bin:${PATH}" \
+    PYTHONPATH="/app"
 
 EXPOSE 8080 8501
 

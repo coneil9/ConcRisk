@@ -11,13 +11,7 @@ Results are served through a REST API, a monitoring dashboard, and a chatbot tha
 
 > 🚧 In progress. See [Roadmap](#roadmap).
 
-**Live:** _dashboard URL_ · _API docs URL_ · _demo video_
-
-<!-- After `bash deploy/01-provision.sh` + `02-containerapps.sh`, replace the
-     placeholders above with the Container Apps URLs printed by the scripts:
-       dashboard: https://concrisk-dashboard.<envdomain>
-       API docs:  https://concrisk-api.<envdomain>/docs
--->
+**Live:** [dashboard](https://concrisk-dashboard.victoriouspond-e3e1e54f.canadacentral.azurecontainerapps.io/) · [API docs](https://concrisk-api.victoriouspond-e3e1e54f.canadacentral.azurecontainerapps.io/docs)
 
 
 ## Architecture
